@@ -1123,14 +1123,14 @@ entries:
   storageclass-accessor:
   - apiVersion: v2
     appVersion: v0.1.2
-    created: "2023-09-19T07:39:13.34617573Z"
+    created: "2023-09-19T09:05:19.882391928Z"
     description: The storageclass-accessor webhook is an HTTP callback which responds
       to admission requests. When creating and deleting the PVC, it will take out
       the accessor related to this storage class, and the request will be allowed
       only when all accessors pass the verification. Users can create accessors and
       set namespaceSelector to achieve namespace-level management on the storage class
       which provisions PVC.
-    digest: d89c2b37cd894aec2f977634001c98c0d8d6d887733c743724a947138bffd9a5
+    digest: 8810d959952d4d6d62098ba4e2edb13a5da8a7a886c0ec51efbf95140f9ec630
     home: https://github.com/kubesphere/storageclass-accessor
     name: storageclass-accessor
     sources:
@@ -1222,4 +1222,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2023-09-19T07:39:13.34549022Z"
+generated: "2023-09-19T09:05:19.881145337Z"
