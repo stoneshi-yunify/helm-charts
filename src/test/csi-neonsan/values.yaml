@@ -61,6 +61,7 @@ sc:
   role:
   min_rep_count:
   max_bs:
+  link_clone: false
 
 snapclass:
   enable: false

@@ -84,6 +84,10 @@ parameters:
   max_bs: "{{ .Values.sc.max_bs }}"
   {{- end}}
 
+  {{- if hasKey .Values.sc "link_clone" }}
+  link_clone: "{{ .Values.sc.link_clone }}"
+  {{- end}}
+
 reclaimPolicy: {{ .Values.sc.reclaimPolicy }}
 allowVolumeExpansion: {{ .Values.sc.allowVolumeExpansion }}
 volumeBindingMode: {{ .Values.sc.volumeBindingMode }}
