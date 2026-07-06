@@ -1,44 +1,42 @@
-{{- if .Values.enableTests -}}
+{{- if .Values.tests.enabled -}}
 apiVersion: v1
 kind: Pod
 metadata:
   name: "{{ .Release.Name }}-ui-test"
   annotations:
     "helm.sh/hook": test-success
-  labels:
-    app: {{ template "sonarqube.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    # Disable Istio sidecar injection for this test pod
+    "sidecar.istio.io/inject": "false"
+  labels: {{- include "sonarqube.labels" . | nindent 4 }}
 spec:
-  initContainers:
-    - name: "test-framework"
-      image: {{ default "dduportal/bats:0.4.0" .Values.plugins.initTestContainerImage }}
-      command:
-      - "bash"
-      - "-c"
-      - |
-        set -ex
-        # copy bats to tools dir
-        cp -R /usr/local/libexec/ /tools/bats/
-      volumeMounts:
-      - mountPath: /tools
-        name: tools
+  automountServiceAccountToken: false
+  {{- if or .Values.image.pullSecrets .Values.image.pullSecret }}
+  imagePullSecrets:
+    {{- if .Values.image.pullSecret }}
+    - name: {{ .Values.image.pullSecret }}
+    {{- end }}
+    {{- with .Values.image.pullSecrets }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
   containers:
     - name: {{ .Release.Name }}-ui-test
-      image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-      command: ["/tools/bats/bats", "-t", "/tests/run.sh"]
-      volumeMounts:
-      - mountPath: /tests
-        name: tests
-        readOnly: true
-      - mountPath: /tools
-        name: tools
-  volumes:
-  - name: tests
-    configMap:
-      name: {{ template "sonarqube.fullname" . }}-tests
-  - name: tools
-    emptyDir: {{ toYaml .Values.emptyDir | nindent 6 }}
+      image: {{ .Values.tests.image | default (include "sonarqube.image" .) | quote }}
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      command: ['curl']
+      args: [
+        '--retry-connrefused',
+        '--retry',
+        '12',
+        '--retry-delay',
+        '1',
+        '--max-time',
+        '5',
+        '-s',
+        '{{ template "sonarqube.fullname" . }}:{{ .Values.service.internalPort }}/api/system/status'
+        ]
+      {{- with .Values.tests.resources }}
+      resources: {{- toYaml . | nindent 8 }}
+      {{- end }}
   restartPolicy: Never
 {{- end -}}
